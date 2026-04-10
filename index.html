@@ -1,148 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Modo Caverna</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    :root {
+      --cave: #0a0a0a; --stone: #141414; --ember: #c8410a; --ember-glow: #e85c1a;
+      --gold: #d4a017; --ash: #888; --fog: #555; --light: #f0ede8; --soft: #ccc;
+    }
+    html, body { height: 100%; background: #0a0a0a; }
+    body { font-family: 'Cinzel', serif; color: #f0ede8; }
 
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&display=swap');
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  :root {
-    --cave: #0a0a0a; --stone: #141414; --ember: #c8410a; --ember-glow: #e85c1a;
-    --gold: #d4a017; --ash: #888; --fog: #555; --light: #f0ede8; --soft: #ccc;
-  }
-  body { background: transparent; }
-  #app { font-family: 'Cinzel', serif; background: var(--cave); color: var(--light); min-height: 100vh; max-width: 430px; margin: 0 auto; position: relative; display: flex; flex-direction: column; }
-  #app::before { content: ''; position: fixed; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--ember), var(--gold), var(--ember)); z-index: 100; }
-  .topbar { background: var(--stone); padding: 14px 16px 10px; border-bottom: 0.5px solid #1e1e1e; position: sticky; top: 0; z-index: 50; }
-  .topbar-title { font-family: 'Cinzel Decorative', serif; font-weight: 900; font-size: 18px; letter-spacing: 0.06em; color: var(--ember-glow); }
-  .topbar-date { font-family: 'Cinzel', serif; font-size: 9px; color: var(--fog); letter-spacing: 0.15em; text-transform: uppercase; margin-top: 2px; }
-  .tab-bar { display: flex; background: var(--stone); border-bottom: 0.5px solid #1e1e1e; position: sticky; top: 56px; z-index: 49; }
-  .tab { flex: 1; padding: 10px 6px; font-size: 8px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fog); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; text-align: center; font-family: 'Cinzel', serif; }
-  .tab.active { color: var(--ember-glow); border-bottom-color: var(--ember-glow); }
-  .screen { display: none; padding: 16px; flex: 1; }
-  .screen.active { display: block; }
+    #app {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--cave);
+      position: relative;
+    }
 
-  .frase-do-dia { background: var(--stone); border-left: 3px solid var(--ember); border-radius: 10px; padding: 14px 16px; margin-bottom: 18px; }
-  .frase-do-dia-label { font-family: 'Cinzel', serif; font-size: 7px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ember); margin-bottom: 8px; }
-  .frase-do-dia-text { font-family: 'IM Fell English', serif; font-size: 14px; line-height: 1.6; color: var(--light); font-style: italic; margin-bottom: 6px; }
-  .frase-do-dia-author { font-family: 'Cinzel', serif; font-size: 8px; color: var(--fog); letter-spacing: 0.1em; text-transform: uppercase; }
+    /* top accent line */
+    #app::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 100%; max-width: 430px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--ember), var(--gold), var(--ember));
+      z-index: 200;
+    }
 
-  .header-day { text-align: center; padding: 16px 0 20px; border-bottom: 0.5px solid #1e1e1e; margin-bottom: 18px; }
-  .big-day { font-family: 'Cinzel Decorative', serif; font-size: 72px; font-weight: 900; color: var(--ember-glow); line-height: 1; }
-  .day-label { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.25em; color: var(--fog); text-transform: uppercase; margin-top: 4px; }
-  .today-date-display { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.12em; color: var(--ash); text-transform: uppercase; margin-top: 6px; }
-  .ninety-wrap { margin: 10px 0 0; }
-  .ninety-bar-bg { height: 4px; background: #1e1e1e; border-radius: 2px; overflow: hidden; margin-bottom: 4px; }
-  .ninety-bar-fill { height: 100%; background: linear-gradient(90deg, var(--ember), var(--gold)); border-radius: 2px; transition: width 0.6s ease; }
-  .ninety-label { font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 0.08em; color: var(--fog); text-transform: uppercase; display: flex; justify-content: space-between; }
+    /* TOPBAR */
+    .topbar {
+      background: var(--stone);
+      padding: 16px 16px 10px;
+      border-bottom: 0.5px solid #1e1e1e;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .topbar-title { font-family: 'Cinzel Decorative', serif; font-weight: 900; font-size: 18px; letter-spacing: 0.06em; color: var(--ember-glow); }
+    .topbar-date { font-family: 'Cinzel', serif; font-size: 9px; color: var(--fog); letter-spacing: 0.15em; text-transform: uppercase; margin-top: 2px; }
 
-  .section-label { font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--fog); margin-bottom: 10px; }
-  .water-section { margin-bottom: 20px; }
-  .water-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; margin-bottom: 8px; }
-  .cup { aspect-ratio: 0.7; border: 1.5px solid #333; border-radius: 0 0 4px 4px; border-top: none; cursor: pointer; position: relative; overflow: hidden; transition: border-color 0.15s; }
-  .cup::before { content: ''; position: absolute; top: -5px; left: 2px; right: 2px; height: 5px; border: 1.5px solid #333; border-bottom: none; border-radius: 2px 2px 0 0; }
-  .cup-fill { position: absolute; bottom: 0; left: 0; right: 0; height: 0%; background: #1a5a8a; transition: height 0.25s ease; }
-  .cup.filled .cup-fill { height: 100%; background: #2a7ac0; }
-  .cup.filled { border-color: #2a7ac0; }
-  .cup.filled::before { border-color: #2a7ac0; }
-  .cup-lbl { position: absolute; bottom: 1px; left: 0; right: 0; text-align: center; font-family: 'Cinzel', serif; font-size: 6px; color: var(--fog); z-index: 1; line-height: 1; }
-  .cup.filled .cup-lbl { color: rgba(255,255,255,0.8); }
-  .water-bar-bg { height: 3px; background: #1e1e1e; border-radius: 2px; overflow: hidden; margin: 0 0 5px; }
-  .water-bar-fill { height: 100%; background: linear-gradient(90deg, #1a5a8a, #2a7ac0); border-radius: 2px; transition: width 0.4s ease; }
-  .water-info { font-family: 'Cinzel', serif; font-size: 10px; color: var(--ash); letter-spacing: 0.04em; }
-  .water-info b { color: #2a7ac0; font-weight: 600; }
+    /* TABS */
+    .tab-bar {
+      display: flex;
+      background: var(--stone);
+      border-bottom: 0.5px solid #1e1e1e;
+      position: sticky; top: 57px; z-index: 99;
+    }
+    .tab {
+      flex: 1; padding: 10px 4px;
+      font-size: 8px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--fog); cursor: pointer; border-bottom: 2px solid transparent;
+      text-align: center; font-family: 'Cinzel', serif; transition: all 0.2s;
+    }
+    .tab.active { color: var(--ember-glow); border-bottom-color: var(--ember-glow); }
 
-  .progress-bar-wrap { height: 2px; background: #1e1e1e; border-radius: 2px; margin: 14px 0 5px; overflow: hidden; }
-  .progress-bar-fill { height: 100%; background: var(--ember-glow); border-radius: 2px; transition: width 0.4s ease; }
-  .progress-label { font-family: 'Cinzel', serif; font-size: 9px; color: var(--fog); text-align: right; letter-spacing: 0.04em; margin-bottom: 14px; }
-  .btn-row { display: flex; gap: 8px; }
-  .save-btn { flex: 1; padding: 14px 8px; background: var(--ember); border: none; border-radius: 10px; color: white; font-family: 'Cinzel', serif; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; min-height: 48px; }
-  .save-btn.ghost { background: #1a1a1a; border: 0.5px solid #333; color: var(--fog); }
+    /* SCREENS */
+    .screen { display: none; padding: 16px; }
+    .screen.active { display: block; }
 
-  .checklist-group { margin-bottom: 20px; }
-  .group-title { font-family: 'Cinzel Decorative', serif; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ember); margin-bottom: 8px; padding-bottom: 6px; border-bottom: 0.5px solid #1e1e1e; }
-  .check-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; cursor: pointer; border-bottom: 0.5px solid #111; min-height: 48px; }
-  .check-item:last-child { border-bottom: none; }
-  .check-box { width: 22px; height: 22px; border: 1.5px solid #333; border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-  .check-item.done .check-box { background: var(--ember); border-color: var(--ember); }
-  .check-item.done .check-box::after { content: ''; width: 5px; height: 9px; border: 2px solid white; border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px); }
-  .check-label { font-family: 'Cinzel', serif; font-size: 11px; color: var(--soft); flex: 1; letter-spacing: 0.02em; line-height: 1.4; }
-  .check-item.done .check-label { color: var(--fog); text-decoration: line-through; }
-  .reset-btn { width: 100%; padding: 13px; background: transparent; border: 0.5px solid #1e1e1e; border-radius: 10px; color: var(--fog); font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.08em; cursor: pointer; margin-top: 8px; min-height: 48px; }
+    /* HOJE */
+    .header-day { text-align: center; padding: 16px 0 18px; border-bottom: 0.5px solid #1e1e1e; margin-bottom: 18px; }
+    .big-day { font-family: 'Cinzel Decorative', serif; font-size: 72px; font-weight: 900; color: var(--ember-glow); line-height: 1; }
+    .day-label { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.25em; color: var(--fog); text-transform: uppercase; margin-top: 4px; }
+    .today-date-display { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.12em; color: var(--ash); text-transform: uppercase; margin-top: 6px; }
+    .ninety-wrap { margin: 10px 0 0; }
+    .ninety-bar-bg { height: 4px; background: #1e1e1e; border-radius: 2px; overflow: hidden; margin-bottom: 4px; }
+    .ninety-bar-fill { height: 100%; background: linear-gradient(90deg, var(--ember), var(--gold)); border-radius: 2px; transition: width 0.6s ease; }
+    .ninety-label { font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 0.08em; color: var(--fog); text-transform: uppercase; display: flex; justify-content: space-between; }
 
-  /* DIÁRIO */
-  .diary-tabs { display: flex; gap: 6px; margin-bottom: 18px; }
-  .diary-tab { flex: 1; padding: 10px; background: var(--stone); border: 0.5px solid #222; border-radius: 8px; color: var(--fog); font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; text-align: center; min-height: 40px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-  .diary-tab.active { border-color: var(--ember); color: var(--ember-glow); }
+    /* FRASE */
+    .frase-do-dia { background: var(--stone); border-left: 3px solid var(--ember); border-radius: 10px; padding: 14px 16px; margin-bottom: 18px; }
+    .frase-do-dia-label { font-family: 'Cinzel', serif; font-size: 7px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ember); margin-bottom: 8px; }
+    .frase-do-dia-text { font-family: 'IM Fell English', serif; font-size: 14px; line-height: 1.6; color: var(--light); font-style: italic; margin-bottom: 6px; }
+    .frase-do-dia-author { font-family: 'Cinzel', serif; font-size: 8px; color: var(--fog); letter-spacing: 0.1em; text-transform: uppercase; }
 
-  .diary-date { font-family: 'Cinzel', serif; font-size: 10px; color: var(--fog); margin-bottom: 14px; letter-spacing: 0.08em; text-transform: uppercase; }
-  .diary-label { font-family: 'Cinzel Decorative', serif; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ember); margin-bottom: 8px; }
-  .diary-entry { margin-bottom: 18px; }
-  textarea { width: 100%; background: var(--stone); border: 0.5px solid #222; border-radius: 10px; color: var(--light); font-family: 'IM Fell English', serif; font-size: 16px; padding: 12px 14px; resize: none; line-height: 1.6; outline: none; -webkit-appearance: none; }
-  textarea::placeholder { color: var(--fog); font-style: italic; }
-  .rating-row { display: flex; gap: 6px; margin-bottom: 18px; }
-  .rating-btn { flex: 1; padding: 12px 4px; background: var(--stone); border: 0.5px solid #222; border-radius: 10px; color: var(--fog); font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.04em; cursor: pointer; text-align: center; min-height: 48px; display: flex; align-items: center; justify-content: center; }
-  .rating-btn.selected { border-color: var(--ember); color: var(--ember-glow); }
-  .saved-note { font-family: 'Cinzel', serif; font-size: 10px; color: var(--fog); text-align: center; margin-top: 10px; min-height: 16px; }
+    /* ÁGUA */
+    .section-label { font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--fog); margin-bottom: 10px; }
+    .water-section { margin-bottom: 20px; }
+    .water-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; margin-bottom: 8px; }
+    .cup { aspect-ratio: 0.7; border: 1.5px solid #333; border-radius: 0 0 4px 4px; border-top: none; cursor: pointer; position: relative; overflow: hidden; transition: border-color 0.15s; }
+    .cup::before { content: ''; position: absolute; top: -5px; left: 2px; right: 2px; height: 5px; border: 1.5px solid #333; border-bottom: none; border-radius: 2px 2px 0 0; }
+    .cup-fill { position: absolute; bottom: 0; left: 0; right: 0; height: 0%; background: #1a5a8a; transition: height 0.25s ease; }
+    .cup.filled .cup-fill { height: 100%; background: #2a7ac0; }
+    .cup.filled { border-color: #2a7ac0; }
+    .cup.filled::before { border-color: #2a7ac0; }
+    .cup-lbl { position: absolute; bottom: 1px; left: 0; right: 0; text-align: center; font-family: 'Cinzel', serif; font-size: 6px; color: var(--fog); z-index: 1; }
+    .cup.filled .cup-lbl { color: rgba(255,255,255,0.8); }
+    .water-bar-bg { height: 3px; background: #1e1e1e; border-radius: 2px; overflow: hidden; margin: 0 0 5px; }
+    .water-bar-fill { height: 100%; background: linear-gradient(90deg, #1a5a8a, #2a7ac0); border-radius: 2px; transition: width 0.4s ease; }
+    .water-info { font-family: 'Cinzel', serif; font-size: 10px; color: var(--ash); }
+    .water-info b { color: #2a7ac0; font-weight: 600; }
 
-  /* HISTÓRICO */
-  .hist-empty { font-family: 'IM Fell English', serif; font-size: 14px; color: var(--fog); font-style: italic; text-align: center; padding: 40px 0; }
-  .hist-entry {
-    background: var(--stone);
-    border: 0.5px solid #1e1e1e;
-    border-radius: 12px;
-    margin-bottom: 12px;
-    overflow: hidden;
-  }
-  .hist-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 14px;
-    cursor: pointer;
-    min-height: 52px;
-  }
-  .hist-header-left { display: flex; align-items: center; gap: 10px; }
-  .hist-day-badge {
-    font-family: 'Cinzel Decorative', serif;
-    font-size: 13px;
-    font-weight: 900;
-    color: var(--ember-glow);
-    min-width: 28px;
-  }
-  .hist-date-text {
-    font-family: 'Cinzel', serif;
-    font-size: 10px;
-    color: var(--soft);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-  .hist-rating {
-    font-family: 'Cinzel', serif;
-    font-size: 9px;
-    letter-spacing: 0.06em;
-  }
-  .hist-rating.r1 { color: #888; }
-  .hist-rating.r2 { color: #aaa; }
-  .hist-rating.r3 { color: var(--gold); }
-  .hist-rating.r4 { color: var(--ember-glow); }
-  .hist-chevron { font-size: 10px; color: var(--fog); transition: transform 0.2s; }
-  .hist-entry.open .hist-chevron { transform: rotate(180deg); }
-  .hist-body { display: none; padding: 0 14px 14px; border-top: 0.5px solid #1e1e1e; }
-  .hist-entry.open .hist-body { display: block; }
-  .hist-section-label { font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ember); margin: 10px 0 4px; }
-  .hist-text { font-family: 'IM Fell English', serif; font-size: 14px; color: var(--soft); line-height: 1.6; font-style: italic; }
-  .hist-energy { font-family: 'Cinzel', serif; font-size: 10px; color: var(--fog); margin-top: 8px; letter-spacing: 0.06em; }
+    /* PROGRESS */
+    .progress-bar-wrap { height: 2px; background: #1e1e1e; border-radius: 2px; margin: 14px 0 5px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; background: var(--ember-glow); border-radius: 2px; transition: width 0.4s ease; }
+    .progress-label { font-family: 'Cinzel', serif; font-size: 9px; color: var(--fog); text-align: right; margin-bottom: 14px; }
 
-  /* STATS */
-  .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
-  .stat-card { background: var(--stone); border: 0.5px solid #1e1e1e; border-radius: 12px; padding: 14px 12px; }
-  .stat-value { font-family: 'Cinzel Decorative', serif; font-size: 32px; font-weight: 900; color: var(--ember-glow); line-height: 1; margin-bottom: 5px; }
-  .stat-label { font-family: 'Cinzel', serif; font-size: 8px; color: var(--fog); letter-spacing: 0.1em; text-transform: uppercase; }
-  .grid-title { font-family: 'Cinzel Decorative', serif; font-size: 9px; color: var(--ember); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
-  .grid-90 { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; margin-bottom: 14px; }
-  .grid-cell { aspect-ratio: 1; border-radius: 2px; border: 0.5px solid #1e1e1e; background: #111; display: flex; align-items: center; justify-content: center; font-family: 'Cinzel', serif; font-size: 6px; color: #333; }
-  .grid-cell.past { background: #2a1a0a; border-color: var(--ember); color: var(--ember); }
-  .grid-cell.today { background: var(--ember); border-color: var(--ember-glow); color: white; }
-  .stats-footer { font-family: 'Cinzel', serif; font-size: 9px; color: var(--fog); text-align: center; margin-bottom: 12px; letter-spacing: 0.06em; }
-</style>
+    /* BUTTONS */
+    .btn-row { display: flex; gap: 8px; }
+    .save-btn { flex: 1; padding: 14px 8px; background: var(--ember); border: none; border-radius: 10px; color: white; font-family: 'Cinzel', serif; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; min-height: 48px; }
+    .save-btn.ghost { background: #1a1a1a; border: 0.5px solid #333; color: var(--fog); }
+    .reset-btn { width: 100%; padding: 13px; background: transparent; border: 0.5px solid #1e1e1e; border-radius: 10px; color: var(--fog); font-family: 'Cinzel', serif; font-size: 10px; cursor: pointer; margin-top: 8px; min-height: 48px; }
 
+    /* CHECKLIST */
+    .checklist-group { margin-bottom: 20px; }
+    .group-title { font-family: 'Cinzel Decorative', serif; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ember); margin-bottom: 8px; padding-bottom: 6px; border-bottom: 0.5px solid #1e1e1e; }
+    .check-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; cursor: pointer; border-bottom: 0.5px solid #111; min-height: 48px; }
+    .check-item:last-child { border-bottom: none; }
+    .check-box { width: 22px; height: 22px; border: 1.5px solid #333; border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .check-item.done .check-box { background: var(--ember); border-color: var(--ember); }
+    .check-item.done .check-box::after { content: ''; width: 5px; height: 9px; border: 2px solid white; border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px); }
+    .check-label { font-family: 'Cinzel', serif; font-size: 11px; color: var(--soft); flex: 1; line-height: 1.4; }
+    .check-item.done .check-label { color: var(--fog); text-decoration: line-through; }
+
+    /* DIÁRIO */
+    .diary-tabs { display: flex; gap: 6px; margin-bottom: 18px; }
+    .diary-tab { flex: 1; padding: 10px; background: var(--stone); border: 0.5px solid #222; border-radius: 8px; color: var(--fog); font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; text-align: center; min-height: 40px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .diary-tab.active { border-color: var(--ember); color: var(--ember-glow); }
+    .diary-date { font-family: 'Cinzel', serif; font-size: 10px; color: var(--fog); margin-bottom: 14px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .diary-label { font-family: 'Cinzel Decorative', serif; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ember); margin-bottom: 8px; }
+    .diary-entry { margin-bottom: 18px; }
+    textarea { width: 100%; background: var(--stone); border: 0.5px solid #222; border-radius: 10px; color: var(--light); font-family: 'IM Fell English', serif; font-size: 16px; padding: 12px 14px; resize: none; line-height: 1.6; outline: none; -webkit-appearance: none; }
+    textarea::placeholder { color: var(--fog); font-style: italic; }
+    .rating-row { display: flex; gap: 6px; margin-bottom: 18px; }
+    .rating-btn { flex: 1; padding: 12px 4px; background: var(--stone); border: 0.5px solid #222; border-radius: 10px; color: var(--fog); font-family: 'Cinzel', serif; font-size: 9px; cursor: pointer; text-align: center; min-height: 48px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .rating-btn.selected { border-color: var(--ember); color: var(--ember-glow); }
+    .saved-note { font-family: 'Cinzel', serif; font-size: 10px; color: var(--fog); text-align: center; margin-top: 10px; min-height: 16px; }
+
+    /* HISTÓRICO */
+    .hist-empty { font-family: 'IM Fell English', serif; font-size: 14px; color: var(--fog); font-style: italic; text-align: center; padding: 40px 0; }
+    .hist-entry { background: var(--stone); border: 0.5px solid #1e1e1e; border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+    .hist-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; cursor: pointer; min-height: 52px; }
+    .hist-header-left { display: flex; align-items: center; gap: 10px; }
+    .hist-day-badge { font-family: 'Cinzel Decorative', serif; font-size: 13px; font-weight: 900; color: var(--ember-glow); min-width: 28px; }
+    .hist-date-text { font-family: 'Cinzel', serif; font-size: 10px; color: var(--soft); letter-spacing: 0.06em; text-transform: uppercase; }
+    .hist-rating { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.06em; }
+    .hist-rating.r1 { color: #888; } .hist-rating.r2 { color: #aaa; } .hist-rating.r3 { color: var(--gold); } .hist-rating.r4 { color: var(--ember-glow); }
+    .hist-chevron { font-size: 10px; color: var(--fog); transition: transform 0.2s; }
+    .hist-entry.open .hist-chevron { transform: rotate(180deg); }
+    .hist-body { display: none; padding: 0 14px 14px; border-top: 0.5px solid #1e1e1e; }
+    .hist-entry.open .hist-body { display: block; }
+    .hist-section-label { font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ember); margin: 10px 0 4px; }
+    .hist-text { font-family: 'IM Fell English', serif; font-size: 14px; color: var(--soft); line-height: 1.6; font-style: italic; }
+    .hist-energy { font-family: 'Cinzel', serif; font-size: 10px; color: var(--fog); margin-top: 8px; }
+
+    /* STATS */
+    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+    .stat-card { background: var(--stone); border: 0.5px solid #1e1e1e; border-radius: 12px; padding: 14px 12px; }
+    .stat-value { font-family: 'Cinzel Decorative', serif; font-size: 32px; font-weight: 900; color: var(--ember-glow); line-height: 1; margin-bottom: 5px; }
+    .stat-label { font-family: 'Cinzel', serif; font-size: 8px; color: var(--fog); letter-spacing: 0.1em; text-transform: uppercase; }
+    .grid-title { font-family: 'Cinzel Decorative', serif; font-size: 9px; color: var(--ember); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+    .grid-91 { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; margin-bottom: 14px; }
+    .grid-cell { aspect-ratio: 1; border-radius: 2px; border: 0.5px solid #1e1e1e; background: #111; display: flex; align-items: center; justify-content: center; font-family: 'Cinzel', serif; font-size: 6px; color: #333; }
+    .grid-cell.past { background: #2a1a0a; border-color: var(--ember); color: var(--ember); }
+    .grid-cell.today { background: var(--ember); border-color: var(--ember-glow); color: white; }
+    .stats-footer { font-family: 'Cinzel', serif; font-size: 9px; color: var(--fog); text-align: center; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
 <div id="app">
   <div class="topbar">
     <div class="topbar-title">Modo Caverna</div>
@@ -178,7 +203,7 @@
       <div class="water-info"><b id="water-ml">0</b> ml de <b>4500</b> ml &nbsp;·&nbsp; <b id="water-pct">0</b>%</div>
     </div>
     <div class="progress-bar-wrap"><div class="progress-bar-fill" id="main-progress" style="width:0%"></div></div>
-    <div class="progress-label" id="main-progress-label">0 de 0 tarefas concluídas</div>
+    <div class="progress-label" id="main-progress-label">0 de 20 tarefas concluídas</div>
     <div class="btn-row">
       <button class="save-btn ghost" onclick="switchTab('checklist')">Checklist</button>
       <button class="save-btn" onclick="switchTab('diario')">Registrar Dia</button>
@@ -197,8 +222,6 @@
       <div class="diary-tab active" id="dtab-registrar" onclick="switchDiaryTab('registrar')">Registrar Hoje</div>
       <div class="diary-tab" id="dtab-historico" onclick="switchDiaryTab('historico')">Histórico</div>
     </div>
-
-    <!-- FORM -->
     <div id="diary-form">
       <div class="diary-date" id="diary-date-label"></div>
       <div class="diary-entry">
@@ -228,17 +251,15 @@
           <div class="rating-btn" onclick="selectEnergy(5)">V</div>
         </div>
       </div>
-      <button class="save-btn" onclick="saveDiary()" style="min-height:52px;">Gravar no Pergaminho</button>
+      <button class="save-btn" onclick="saveDiary()" style="min-height:52px;margin-bottom:32px;">Gravar no Pergaminho</button>
       <div class="saved-note" id="saved-note"></div>
     </div>
-
-    <!-- HISTÓRICO -->
     <div id="diary-historico" style="display:none;">
       <div id="hist-list"></div>
     </div>
   </div>
 
-  <!-- STATS -->
+  <!-- PROGRESSO -->
   <div id="screen-stats" class="screen">
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-value" id="stat-dias">—</div><div class="stat-label">Dia Atual</div></div>
@@ -247,371 +268,447 @@
       <div class="stat-card"><div class="stat-value" id="stat-registros">0</div><div class="stat-label">Dias Registrados</div></div>
     </div>
     <div class="grid-title">Mapa da Jornada — 91 dias</div>
-    <div class="grid-90" id="grid-90"></div>
+    <div class="grid-91" id="grid-91"></div>
     <div class="stats-footer">13 Abr → 13 Jul &nbsp;·&nbsp; 91 dias</div>
-    <button class="reset-btn" onclick="resetAll()">Zerar tudo e começar do zero</button>
+    <button class="reset-btn" onclick="resetAll()" style="margin-bottom:32px;">Zerar tudo e começar do zero</button>
   </div>
 </div>
 
 <script>
-const START = new Date(2025, 3, 13);
-const END   = new Date(2025, 6, 13);
-const TOTAL = Math.round((END - START) / 86400000) + 1;
-const WATER_GOAL_ML = 4500;
-const CUP_ML = 250;
-const NUM_CUPS = WATER_GOAL_ML / CUP_ML;
+  // ── CONFIGURAÇÃO ──────────────────────────────────────────
+  // Início = 13 abr 2025 (meia-noite, hora local)
+  // Fim    = 13 jul 2025 (meia-noite, hora local) = dia 91
+  const START_Y = 2025, START_M = 3, START_D = 13; // mês é 0-based: 3 = abril
+  const END_Y   = 2025, END_M   = 6, END_D   = 13; // 6 = julho
 
-const RATINGS = ['', 'Fraco', 'Ok', 'Bom', 'Fogo'];
-const ENERGY_LABELS = ['', 'I', 'II', 'III', 'IV', 'V'];
+  function startMidnight() { return new Date(START_Y, START_M, START_D); }
+  function endMidnight()   { return new Date(END_Y,   END_M,   END_D);   }
 
-const FRASES = [
-  { text: "A caverna que você teme entrar tem o tesouro que você busca.", author: "Joseph Campbell" },
-  { text: "Disciplina é liberdade. Quanto mais você se controla, mais livre você se torna.", author: "Jocko Willink" },
-  { text: "Não espere motivação. Crie momentum. A ação gera motivação.", author: "Princípio da Caverna" },
-  { text: "Seu corpo aguenta quase tudo. É sua mente que você precisa convencer.", author: "Anônimo" },
-  { text: "O silêncio não é ausência. É presença de si mesmo.", author: "Modo Caverna" },
-  { text: "Cada dia que você não age é um dia que o concorrente avança.", author: "Mentalidade de Guerra" },
-  { text: "Foco é dizer não para cem boas ideias para dizer sim para uma extraordinária.", author: "Steve Jobs" },
-  { text: "Não há atalho para qualquer lugar que valha a pena ir.", author: "Beverly Sills" },
-  { text: "Pequenas ações consistentes constroem impérios.", author: "Princípio da Caverna" },
-  { text: "Você não precisa de motivação quando tem disciplina.", author: "Anônimo" },
-  { text: "O sofrimento de hoje é a força de amanhã.", author: "Arnold Schwarzenegger" },
-  { text: "Controle seu tempo, controle sua vida.", author: "Modo Caverna" },
-  { text: "Cuide do seu corpo. É o único lugar onde você tem que viver.", author: "Jim Rohn" },
-  { text: "A diferença entre quem você é e quem quer ser está no que você faz todos os dias.", author: "Anônimo" },
-  { text: "Seja tão ocupado construindo seu futuro que não sobre tempo para distrações.", author: "Mentalidade de Guerra" },
-  { text: "Vença a manhã. Vença o dia.", author: "Robin Sharma" },
-  { text: "O campeão não é o que nunca cai, é o que levanta mais rápido.", author: "Vince Lombardi" },
-  { text: "Faça o que é difícil agora para que sua vida seja fácil depois.", author: "Les Brown" },
-  { text: "Não existe elevador para o sucesso. Você precisa usar as escadas.", author: "Zig Ziglar" },
-  { text: "A dor que você sente hoje é a força que você vai sentir amanhã.", author: "Anônimo" },
-  { text: "Seus hábitos determinam seu destino.", author: "Jack Canfield" },
-  { text: "A rotina de um vencedor é entediante para quem não quer vencer.", author: "Modo Caverna" },
-  { text: "Nunca confunda movimento com progresso.", author: "Denzel Washington" },
-  { text: "Acorde com determinação. Durma com satisfação.", author: "Anônimo" },
-  { text: "Primeiro você forma seus hábitos, depois seus hábitos formam você.", author: "John Dryden" },
-  { text: "Um dia você vai agradecer por não ter desistido hoje.", author: "Anônimo" },
-  { text: "Treinar quando não quer é o que separa os que chegam lá.", author: "Modo Caverna" },
-  { text: "Não é sobre ter tempo. É sobre fazer tempo.", author: "Anônimo" },
-  { text: "A riqueza é construída em silêncio, enquanto o barulho distrai os outros.", author: "Princípio da Caverna" },
-  { text: "Cada rep que você não quer fazer é exatamente a que mais importa.", author: "Mentalidade de Guerra" },
-  { text: "O sucesso é a soma de pequenos esforços repetidos dia após dia.", author: "Robert Collier" },
-  { text: "Seja duro com você agora para que a vida seja mais fácil depois.", author: "Anônimo" },
-  { text: "Construindo em silêncio. O mundo saberá quando estiver pronto.", author: "Modo Caverna" },
-  { text: "A maioria das pessoas superestima o que pode fazer em um dia e subestima o que pode fazer em um ano.", author: "Bill Gates" },
-  { text: "Não espere a inspiração. Comece e ela vem no meio do caminho.", author: "Jack London" },
-  { text: "Cada manhã você tem duas escolhas: continuar dormindo com seus sonhos ou acordar e persegui-los.", author: "Anônimo" },
-  { text: "O homem que move montanhas começa carregando pedras pequenas.", author: "Confúcio" },
-  { text: "Não conte os dias. Faça os dias contarem.", author: "Muhammad Ali" },
-  { text: "Você é o produto das suas escolhas, não das suas circunstâncias.", author: "Anônimo" },
-  { text: "Dor é temporária. Desistir é para sempre.", author: "Lance Armstrong" },
-  { text: "O que você faz todos os dias importa mais do que o que você faz de vez em quando.", author: "Gretchen Rubin" },
-  { text: "Seja o tipo de pessoa que você precisaria ter ao seu lado na batalha.", author: "Modo Caverna" },
-  { text: "Execute em silêncio. Deixe o sucesso fazer barulho.", author: "Princípio da Caverna" },
-  { text: "O seu eu futuro está te observando. Não o decepcione.", author: "Modo Caverna" },
-  { text: "Trabalho duro bate talento quando talento não trabalha duro.", author: "Tim Notke" },
-  { text: "Quem corre atrás de dois coelhos não pega nenhum. Escolha seu alvo.", author: "Princípio do Foco" },
-  { text: "Quando você quer desistir, lembre por que começou.", author: "Anônimo" },
-  { text: "A vitória é reservada para aqueles dispostos a pagar o preço.", author: "Sun Tzu" },
-  { text: "O único treino ruim é o que não aconteceu.", author: "Mentalidade de Guerra" },
-  { text: "Não se compare com os outros. Compare-se com quem você era ontem.", author: "Jordan Peterson" },
-  { text: "Redes sociais são o opiáceo dos fracos. A caverna é o trono dos fortes.", author: "Modo Caverna" },
-  { text: "Persistência é o que transforma um amador em profissional.", author: "Anônimo" },
-  { text: "O melhor momento para plantar uma árvore foi há 20 anos. O segundo melhor é agora.", author: "Provérbio Chinês" },
-  { text: "Não existem condições perfeitas. Comece agora com o que você tem.", author: "Anônimo" },
-  { text: "Grandes resultados exigem grandes ambições.", author: "Heráclito" },
-  { text: "Um guerreiro não se lamenta. Ele age.", author: "Modo Caverna" },
-  { text: "A mente é tudo. O que você pensa, você se torna.", author: "Buda" },
-  { text: "Não é quem você é que te impede. É quem você acha que não é.", author: "Denis Waitley" },
-  { text: "Você tem exatamente o mesmo número de horas por dia que Einstein teve.", author: "H. Jackson Brown Jr." },
-  { text: "O sucesso não é final, o fracasso não é fatal. O que conta é a coragem de continuar.", author: "Winston Churchill" },
-  { text: "Seu nível de sucesso raramente excede seu nível de desenvolvimento pessoal.", author: "Jim Rohn" },
-  { text: "Não durma para descansar. Durma para vencer.", author: "Modo Caverna" },
-  { text: "O segredo do seu futuro está escondido na sua rotina diária.", author: "Mike Murdock" },
-  { text: "Você não decide seu futuro. Você decide seus hábitos e eles decidem seu futuro.", author: "F.M. Alexander" },
-  { text: "Fome de crescer vale mais que talento natural.", author: "Princípio da Caverna" },
-  { text: "Cada dia é uma página do livro que você está escrevendo sobre sua vida.", author: "Anônimo" },
-  { text: "A diferença entre ordinário e extraordinário é aquele 'extra'.", author: "Jimmy Johnson" },
-  { text: "Nenhum vento é favorável para quem não sabe para onde vai.", author: "Sêneca" },
-  { text: "O sofrimento é opcional. O esforço não é.", author: "Modo Caverna" },
-  { text: "Quem planta consistência colhe excelência.", author: "Princípio da Caverna" },
-  { text: "Aprenda com o ontem, viva o hoje, tenha esperança para o amanhã.", author: "Albert Einstein" },
-  { text: "Você foi criado para mais do que essa vida mediana que o mundo oferece.", author: "Modo Caverna" },
-  { text: "Trate cada treino como se fosse o último e cada refeição como se fosse a mais importante.", author: "Mentalidade de Guerra" },
-  { text: "O silêncio é a arma do guerreiro que ainda está construindo.", author: "Modo Caverna" },
-  { text: "Coma bem. Treine duro. Durma profundo. Repita.", author: "Princípio da Caverna" },
-  { text: "O que você não mede, você não controla. O que não controla, não melhora.", author: "Peter Drucker" },
-  { text: "Dinheiro cresce em silêncio. Músculo cresce em dor. Mente cresce em livros.", author: "Modo Caverna" },
-  { text: "Seja obcecado ou seja mediano. Não existe meio-termo.", author: "Grant Cardone" },
-  { text: "Cada segundo que você desperdiça é um segundo que não volta.", author: "Mentalidade de Guerra" },
-  { text: "O segredo dos campeões é que eles fazem o que os outros não estão dispostos a fazer.", author: "Modo Caverna" },
-  { text: "Não existe hora certa. A hora certa é agora.", author: "Anônimo" },
-  { text: "Quem planta hoje colhe amanhã. Quem não planta, mendiga depois.", author: "Princípio da Caverna" },
-  { text: "A caverna não é punição. É proteção. Você está se tornando.", author: "Modo Caverna" },
-  { text: "Foco total. Zero distrações. Resultado inevitável.", author: "Princípio da Caverna" },
-  { text: "91 dias. Uma vida nova. Começa agora.", author: "Modo Caverna" },
-  { text: "Não perca tempo explicando quem você é para quem está determinado a mal te entender.", author: "Anônimo" },
-  { text: "A oportunidade de uma vida dura exatamente a vida de uma oportunidade.", author: "Anônimo" },
-  { text: "O caminho para o sucesso e o fracasso são quase exatamente o mesmo. A diferença é onde você para.", author: "Colin R. Davis" },
-];
+  // TOTAL = diferença em dias + 1 (inclui o dia 13/jul)
+  const TOTAL = Math.round((endMidnight() - startMidnight()) / 86400000) + 1; // deve ser 92... espera
 
-const checklistData = [
-  { group: "Manhã", items: ["Acordou sem snooze","Meditou ou respiração profunda (5 min)","Bebeu 500ml de água ao acordar","Treino / movimento do dia"] },
-  { group: "Alimentação", items: ["Café da manhã limpo","Almoço dentro do plano","Janta dentro do plano","Sem açúcar processado"] },
-  { group: "Negócios & Estudos", items: ["Trabalhou na loja / produto","Estudou algo novo (livro ou curso)","Avançou em fonte de renda adicional","Revisou o CIVIC 2018 (se aplicável)"] },
-  { group: "Pilares da Caverna", items: ["Sem redes sociais","Sem dopamina lixo (vídeos, games aleatórios)","Dormiu no horário planejado","Disse não para algo que deveria"] },
-  { group: "Encerramento", items: ["Registrou o diário do dia","Planejou o amanhã","Curadoria: interagiu só com quem importa","Gratidão por 1 coisa do dia"] }
-];
+  // Na verdade: 13/abr ao 13/jul inclusive
+  // abr tem 30 dias → 30-13=17 dias restantes em abr (13→30) + 31 (mai) + 30 (jun) + 13 (jul) = 91 dias
+  // Mas queremos DIA 1 = 13/abr e DIA 91 = 13/jul
+  // diff entre 13/abr e 13/jul = 91 dias, então total = 91
 
-let state = {};
+  // Recalcular corretamente:
+  // dia 1 = 13/abr, dia 91 = 13/jul
+  // diff(13/jul - 13/abr) = 91 dias de diferença
+  // mas queremos que dia 1 = 13/abr, então total de dias = 91 (diff) + 0 extra = nao
+  // Vamos fixar direto:
+  const DIAS_TOTAL = 91;
 
-function loadState() {
-  try { const r = localStorage.getItem('caverna_v2'); if (r) state = JSON.parse(r); else initState(); }
-  catch(e) { initState(); }
-}
-function initState() {
-  state = { water: {}, checks: {}, diary: {}, totalWaterMl: 0, totalChecks: 0 };
-  saveState();
-}
-function saveState() { try { localStorage.setItem('caverna_v2', JSON.stringify(state)); } catch(e) {} }
+  const WATER_GOAL_ML = 4500;
+  const CUP_ML = 250;
+  const NUM_CUPS = WATER_GOAL_ML / CUP_ML; // 18
 
-function todayMidnight() { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); }
-function todayKey() {
-  const n = new Date();
-  return n.getFullYear() + '-' + String(n.getMonth()+1).padStart(2,'0') + '-' + String(n.getDate()).padStart(2,'0');
-}
-function currentDayNumber() {
-  const diff = Math.round((todayMidnight() - START) / 86400000);
-  if (diff < 0) return null;
-  if (diff >= TOTAL) return TOTAL;
-  return diff + 1;
-}
-function dayNumberForKey(key) {
-  const d = new Date(key + 'T00:00:00');
-  const diff = Math.round((d - START) / 86400000);
-  if (diff < 0) return null;
-  return diff + 1;
-}
-function daysRemaining() { const d = currentDayNumber(); return d === null ? TOTAL : Math.max(0, TOTAL - d); }
-function pctComplete() { const d = currentDayNumber(); return d === null ? 0 : Math.round((d / TOTAL) * 100); }
-function formatTodayLong() { return new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' }); }
-function formatTodayShort() { return new Date().toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric' }); }
-function formatKeyShort(key) {
-  const d = new Date(key + 'T00:00:00');
-  return d.toLocaleDateString('pt-BR', { weekday:'short', day:'numeric', month:'short' });
-}
+  const RATINGS = ['', 'Fraco', 'Ok', 'Bom', 'Fogo'];
+  const ENERGY_LABELS = ['', 'I', 'II', 'III', 'IV', 'V'];
 
-function getFraseDodia() {
-  const d = currentDayNumber();
-  let idx = d !== null ? (d - 1) % FRASES.length : (Math.floor((new Date() - new Date(new Date().getFullYear(),0,0))/86400000)) % FRASES.length;
-  return FRASES[idx];
-}
+  const FRASES = [
+    { text: "A caverna que você teme entrar tem o tesouro que você busca.", author: "Joseph Campbell" },
+    { text: "Disciplina é liberdade. Quanto mais você se controla, mais livre você se torna.", author: "Jocko Willink" },
+    { text: "Não espere motivação. Crie momentum. A ação gera motivação.", author: "Princípio da Caverna" },
+    { text: "Seu corpo aguenta quase tudo. É sua mente que você precisa convencer.", author: "Anônimo" },
+    { text: "O silêncio não é ausência. É presença de si mesmo.", author: "Modo Caverna" },
+    { text: "Cada dia que você não age é um dia que o concorrente avança.", author: "Mentalidade de Guerra" },
+    { text: "Foco é dizer não para cem boas ideias para dizer sim para uma extraordinária.", author: "Steve Jobs" },
+    { text: "Não há atalho para qualquer lugar que valha a pena ir.", author: "Beverly Sills" },
+    { text: "Pequenas ações consistentes constroem impérios.", author: "Princípio da Caverna" },
+    { text: "Você não precisa de motivação quando tem disciplina.", author: "Anônimo" },
+    { text: "O sofrimento de hoje é a força de amanhã.", author: "Arnold Schwarzenegger" },
+    { text: "Controle seu tempo, controle sua vida.", author: "Modo Caverna" },
+    { text: "Cuide do seu corpo. É o único lugar onde você tem que viver.", author: "Jim Rohn" },
+    { text: "A diferença entre quem você é e quem quer ser está no que você faz todos os dias.", author: "Anônimo" },
+    { text: "Seja tão ocupado construindo seu futuro que não sobre tempo para distrações.", author: "Mentalidade de Guerra" },
+    { text: "Vença a manhã. Vença o dia.", author: "Robin Sharma" },
+    { text: "O campeão não é o que nunca cai, é o que levanta mais rápido.", author: "Vince Lombardi" },
+    { text: "Faça o que é difícil agora para que sua vida seja fácil depois.", author: "Les Brown" },
+    { text: "Não existe elevador para o sucesso. Você precisa usar as escadas.", author: "Zig Ziglar" },
+    { text: "A dor que você sente hoje é a força que você vai sentir amanhã.", author: "Anônimo" },
+    { text: "Seus hábitos determinam seu destino.", author: "Jack Canfield" },
+    { text: "A rotina de um vencedor é entediante para quem não quer vencer.", author: "Modo Caverna" },
+    { text: "Nunca confunda movimento com progresso.", author: "Denzel Washington" },
+    { text: "Acorde com determinação. Durma com satisfação.", author: "Anônimo" },
+    { text: "Primeiro você forma seus hábitos, depois seus hábitos formam você.", author: "John Dryden" },
+    { text: "Um dia você vai agradecer por não ter desistido hoje.", author: "Anônimo" },
+    { text: "Treinar quando não quer é o que separa os que chegam lá.", author: "Modo Caverna" },
+    { text: "Não é sobre ter tempo. É sobre fazer tempo.", author: "Anônimo" },
+    { text: "A riqueza é construída em silêncio, enquanto o barulho distrai os outros.", author: "Princípio da Caverna" },
+    { text: "Cada rep que você não quer fazer é exatamente a que mais importa.", author: "Mentalidade de Guerra" },
+    { text: "O sucesso é a soma de pequenos esforços repetidos dia após dia.", author: "Robert Collier" },
+    { text: "Seja duro com você agora para que a vida seja mais fácil depois.", author: "Anônimo" },
+    { text: "Construindo em silêncio. O mundo saberá quando estiver pronto.", author: "Modo Caverna" },
+    { text: "A maioria das pessoas superestima o que pode fazer em um dia e subestima o que pode fazer em um ano.", author: "Bill Gates" },
+    { text: "Não espere a inspiração. Comece e ela vem no meio do caminho.", author: "Jack London" },
+    { text: "Cada manhã você tem duas escolhas: continuar dormindo com seus sonhos ou acordar e persegui-los.", author: "Anônimo" },
+    { text: "O homem que move montanhas começa carregando pedras pequenas.", author: "Confúcio" },
+    { text: "Não conte os dias. Faça os dias contarem.", author: "Muhammad Ali" },
+    { text: "Você é o produto das suas escolhas, não das suas circunstâncias.", author: "Anônimo" },
+    { text: "Dor é temporária. Desistir é para sempre.", author: "Lance Armstrong" },
+    { text: "O que você faz todos os dias importa mais do que o que você faz de vez em quando.", author: "Gretchen Rubin" },
+    { text: "Seja o tipo de pessoa que você precisaria ter ao seu lado na batalha.", author: "Modo Caverna" },
+    { text: "Execute em silêncio. Deixe o sucesso fazer barulho.", author: "Princípio da Caverna" },
+    { text: "O seu eu futuro está te observando. Não o decepcione.", author: "Modo Caverna" },
+    { text: "Trabalho duro bate talento quando talento não trabalha duro.", author: "Tim Notke" },
+    { text: "Quem corre atrás de dois coelhos não pega nenhum. Escolha seu alvo.", author: "Princípio do Foco" },
+    { text: "Quando você quer desistir, lembre por que começou.", author: "Anônimo" },
+    { text: "A vitória é reservada para aqueles dispostos a pagar o preço.", author: "Sun Tzu" },
+    { text: "O único treino ruim é o que não aconteceu.", author: "Mentalidade de Guerra" },
+    { text: "Não se compare com os outros. Compare-se com quem você era ontem.", author: "Jordan Peterson" },
+    { text: "Redes sociais são o opiáceo dos fracos. A caverna é o trono dos fortes.", author: "Modo Caverna" },
+    { text: "Persistência é o que transforma um amador em profissional.", author: "Anônimo" },
+    { text: "O melhor momento para plantar uma árvore foi há 20 anos. O segundo melhor é agora.", author: "Provérbio Chinês" },
+    { text: "Não existem condições perfeitas. Comece agora com o que você tem.", author: "Anônimo" },
+    { text: "Grandes resultados exigem grandes ambições.", author: "Heráclito" },
+    { text: "Um guerreiro não se lamenta. Ele age.", author: "Modo Caverna" },
+    { text: "A mente é tudo. O que você pensa, você se torna.", author: "Buda" },
+    { text: "Não é quem você é que te impede. É quem você acha que não é.", author: "Denis Waitley" },
+    { text: "Você tem exatamente o mesmo número de horas por dia que Einstein teve.", author: "H. Jackson Brown Jr." },
+    { text: "O sucesso não é final, o fracasso não é fatal. O que conta é a coragem de continuar.", author: "Winston Churchill" },
+    { text: "Seu nível de sucesso raramente excede seu nível de desenvolvimento pessoal.", author: "Jim Rohn" },
+    { text: "Não durma para descansar. Durma para vencer.", author: "Modo Caverna" },
+    { text: "O segredo do seu futuro está escondido na sua rotina diária.", author: "Mike Murdock" },
+    { text: "Você não decide seu futuro. Você decide seus hábitos e eles decidem seu futuro.", author: "F.M. Alexander" },
+    { text: "Fome de crescer vale mais que talento natural.", author: "Princípio da Caverna" },
+    { text: "Cada dia é uma página do livro que você está escrevendo sobre sua vida.", author: "Anônimo" },
+    { text: "A diferença entre ordinário e extraordinário é aquele 'extra'.", author: "Jimmy Johnson" },
+    { text: "Nenhum vento é favorável para quem não sabe para onde vai.", author: "Sêneca" },
+    { text: "O sofrimento é opcional. O esforço não é.", author: "Modo Caverna" },
+    { text: "Quem planta consistência colhe excelência.", author: "Princípio da Caverna" },
+    { text: "Aprenda com o ontem, viva o hoje, tenha esperança para o amanhã.", author: "Albert Einstein" },
+    { text: "Você foi criado para mais do que essa vida mediana que o mundo oferece.", author: "Modo Caverna" },
+    { text: "Trate cada treino como se fosse o último e cada refeição como se fosse a mais importante.", author: "Mentalidade de Guerra" },
+    { text: "O silêncio é a arma do guerreiro que ainda está construindo.", author: "Modo Caverna" },
+    { text: "Coma bem. Treine duro. Durma profundo. Repita.", author: "Princípio da Caverna" },
+    { text: "O que você não mede, você não controla. O que não controla, não melhora.", author: "Peter Drucker" },
+    { text: "Dinheiro cresce em silêncio. Músculo cresce em dor. Mente cresce em livros.", author: "Modo Caverna" },
+    { text: "Seja obcecado ou seja mediano. Não existe meio-termo.", author: "Grant Cardone" },
+    { text: "Cada segundo que você desperdiça é um segundo que não volta.", author: "Mentalidade de Guerra" },
+    { text: "O segredo dos campeões é que eles fazem o que os outros não estão dispostos a fazer.", author: "Modo Caverna" },
+    { text: "Não existe hora certa. A hora certa é agora.", author: "Anônimo" },
+    { text: "Quem planta hoje colhe amanhã. Quem não planta, mendiga depois.", author: "Princípio da Caverna" },
+    { text: "A caverna não é punição. É proteção. Você está se tornando.", author: "Modo Caverna" },
+    { text: "Foco total. Zero distrações. Resultado inevitável.", author: "Princípio da Caverna" },
+    { text: "91 dias. Uma vida nova. Começa agora.", author: "Modo Caverna" },
+    { text: "Não perca tempo explicando quem você é para quem está determinado a mal te entender.", author: "Anônimo" },
+    { text: "A oportunidade de uma vida dura exatamente a vida de uma oportunidade.", author: "Anônimo" },
+    { text: "O caminho para o sucesso e o fracasso são quase o mesmo. A diferença é onde você para.", author: "Colin R. Davis" },
+  ];
 
-function switchTab(tab) {
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['hoje','checklist','diario','stats'][i] === tab));
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + tab).classList.add('active');
-  window.scrollTo(0, 0);
-}
+  const checklistData = [
+    { group: "Manhã", items: ["Acordou sem snooze", "Meditou ou respiração profunda (5 min)", "Bebeu 500ml de água ao acordar", "Treino / movimento do dia"] },
+    { group: "Alimentação", items: ["Café da manhã limpo", "Almoço dentro do plano", "Janta dentro do plano", "Sem açúcar processado"] },
+    { group: "Negócios & Estudos", items: ["Trabalhou na loja / produto", "Estudou algo novo (livro ou curso)", "Avançou em fonte de renda adicional", "Revisou o CIVIC 2018 (se aplicável)"] },
+    { group: "Pilares da Caverna", items: ["Sem redes sociais", "Sem dopamina lixo (vídeos, games aleatórios)", "Dormiu no horário planejado", "Disse não para algo que deveria"] },
+    { group: "Encerramento", items: ["Registrou o diário do dia", "Planejou o amanhã", "Curadoria: interagiu só com quem importa", "Gratidão por 1 coisa do dia"] }
+  ];
 
-let currentDiaryTab = 'registrar';
-function switchDiaryTab(tab) {
-  currentDiaryTab = tab;
-  document.getElementById('dtab-registrar').classList.toggle('active', tab === 'registrar');
-  document.getElementById('dtab-historico').classList.toggle('active', tab === 'historico');
-  document.getElementById('diary-form').style.display = tab === 'registrar' ? 'block' : 'none';
-  document.getElementById('diary-historico').style.display = tab === 'historico' ? 'block' : 'none';
-  if (tab === 'historico') buildHistorico();
-}
+  // ── STATE ─────────────────────────────────────────────────
+  let state = {};
 
-function buildHistorico() {
-  const list = document.getElementById('hist-list');
-  list.innerHTML = '';
-  const diary = state.diary || {};
-  const keys = Object.keys(diary).sort((a,b) => b.localeCompare(a));
-  if (keys.length === 0) {
-    list.innerHTML = '<div class="hist-empty">Nenhum registro ainda.<br>Grave o primeiro dia.</div>';
-    return;
+  function loadState() {
+    try { const r = localStorage.getItem('caverna_v2'); if (r) state = JSON.parse(r); else initState(); }
+    catch(e) { initState(); }
   }
-  keys.forEach(key => {
-    const entry = diary[key];
-    const dayNum = dayNumberForKey(key);
-    const ratingLabel = RATINGS[entry.rating] || '—';
-    const ratingClass = entry.rating ? 'r' + entry.rating : 'r1';
-    const energyLabel = ENERGY_LABELS[entry.energy] || '—';
-
-    const el = document.createElement('div');
-    el.className = 'hist-entry';
-    el.innerHTML = `
-      <div class="hist-header" onclick="toggleHist(this)">
-        <div class="hist-header-left">
-          <div class="hist-day-badge">${dayNum !== null ? dayNum : '?'}</div>
-          <div class="hist-date-text">${formatKeyShort(key)}</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div class="hist-rating ${ratingClass}">${ratingLabel}</div>
-          <div class="hist-chevron">▼</div>
-        </div>
-      </div>
-      <div class="hist-body">
-        ${entry.wins ? `<div class="hist-section-label">Vitórias</div><div class="hist-text">${entry.wins}</div>` : ''}
-        ${entry.improve ? `<div class="hist-section-label">Melhorar</div><div class="hist-text">${entry.improve}</div>` : ''}
-        <div class="hist-energy">Energia: ${energyLabel}</div>
-      </div>
-    `;
-    list.appendChild(el);
-  });
-}
-
-function toggleHist(header) {
-  header.parentElement.classList.toggle('open');
-}
-
-function initWater() {
-  if (!state.water) state.water = {};
-  const today = todayKey();
-  const filled = state.water[today] || 0;
-  const cups = document.getElementById('water-cups');
-  cups.innerHTML = '';
-  for (let i = 0; i < NUM_CUPS; i++) {
-    const c = document.createElement('div');
-    c.className = 'cup' + (i < filled ? ' filled' : '');
-    const ml = (i + 1) * CUP_ML;
-    const lbl = (ml % 1000 === 0) ? (ml/1000)+'L' : '';
-    c.innerHTML = '<div class="cup-fill"></div>' + (lbl ? '<div class="cup-lbl">' + lbl + '</div>' : '');
-    c.addEventListener('click', () => {
-      const cur = state.water[today] || 0;
-      const nv = i < cur ? i : i + 1;
-      state.totalWaterMl = (state.totalWaterMl||0) + Math.max(0, (nv-cur)*CUP_ML);
-      state.water[today] = nv;
-      saveState(); initWater();
-    });
-    cups.appendChild(c);
+  function initState() {
+    state = { water: {}, checks: {}, diary: {}, totalWaterMl: 0, totalChecks: 0 };
+    saveState();
   }
-  const totalMl = filled * CUP_ML;
-  const pct = Math.round((totalMl / WATER_GOAL_ML) * 100);
-  document.getElementById('water-ml').textContent = totalMl;
-  document.getElementById('water-pct').textContent = pct;
-  document.getElementById('water-bar').style.width = Math.min(pct,100) + '%';
-}
+  function saveState() { try { localStorage.setItem('caverna_v2', JSON.stringify(state)); } catch(e) {} }
 
-function initChecklist() {
-  const container = document.getElementById('checklist-container');
-  container.innerHTML = '';
-  const today = todayKey();
-  if (!state.checks[today]) state.checks[today] = {};
-  checklistData.forEach(group => {
-    const div = document.createElement('div');
-    div.className = 'checklist-group';
-    div.innerHTML = '<div class="group-title">' + group.group + '</div>';
-    group.items.forEach((item, idx) => {
-      const key = group.group + '_' + idx;
-      const done = !!state.checks[today][key];
-      const row = document.createElement('div');
-      row.className = 'check-item' + (done ? ' done' : '');
-      row.innerHTML = '<div class="check-box"></div><div class="check-label">' + item + '</div>';
-      row.addEventListener('click', () => {
-        state.checks[today][key] = !state.checks[today][key];
-        row.classList.toggle('done', state.checks[today][key]);
-        if (state.checks[today][key]) state.totalChecks = (state.totalChecks||0)+1;
-        saveState(); updateProgress();
+  // ── DATAS ─────────────────────────────────────────────────
+  function todayMidnight() {
+    const n = new Date();
+    return new Date(n.getFullYear(), n.getMonth(), n.getDate());
+  }
+  function todayKey() {
+    const n = new Date();
+    return n.getFullYear() + '-' + String(n.getMonth()+1).padStart(2,'0') + '-' + String(n.getDate()).padStart(2,'0');
+  }
+
+  // Retorna o número do dia atual (1 a 91), ou null se antes do início, ou 91 se depois do fim
+  function currentDayNumber() {
+    const today = todayMidnight();
+    const start = startMidnight();
+    const end   = endMidnight();
+
+    if (today < start) return null;           // ainda não começou
+    if (today > end)   return DIAS_TOTAL;     // plano encerrado
+
+    const diff = Math.round((today - start) / 86400000);
+    return diff + 1; // dia 1 = 13/abr, dia 91 = 13/jul
+  }
+
+  function dayNumberForKey(key) {
+    const parts = key.split('-');
+    const d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+    const diff = Math.round((d - startMidnight()) / 86400000);
+    if (diff < 0) return null;
+    return diff + 1;
+  }
+
+  function daysRemaining() {
+    const d = currentDayNumber();
+    return d === null ? DIAS_TOTAL : Math.max(0, DIAS_TOTAL - d);
+  }
+  function pctComplete() {
+    const d = currentDayNumber();
+    return d === null ? 0 : Math.round((d / DIAS_TOTAL) * 100);
+  }
+  function formatTodayLong() {
+    return new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  }
+  function formatTodayShort() {
+    return new Date().toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric' });
+  }
+  function formatKeyShort(key) {
+    const parts = key.split('-');
+    const d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+    return d.toLocaleDateString('pt-BR', { weekday:'short', day:'numeric', month:'short' });
+  }
+
+  // ── FRASE DO DIA ──────────────────────────────────────────
+  function getFraseDodia() {
+    const d = currentDayNumber();
+    let idx;
+    if (d !== null) {
+      idx = (d - 1) % FRASES.length;
+    } else {
+      const now = new Date();
+      const startOfYear = new Date(now.getFullYear(), 0, 0);
+      idx = Math.floor((now - startOfYear) / 86400000) % FRASES.length;
+    }
+    return FRASES[idx];
+  }
+
+  // ── NAVEGAÇÃO ─────────────────────────────────────────────
+  function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach((t,i) =>
+      t.classList.toggle('active', ['hoje','checklist','diario','stats'][i] === tab)
+    );
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + tab).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function switchDiaryTab(tab) {
+    document.getElementById('dtab-registrar').classList.toggle('active', tab === 'registrar');
+    document.getElementById('dtab-historico').classList.toggle('active', tab === 'historico');
+    document.getElementById('diary-form').style.display = tab === 'registrar' ? 'block' : 'none';
+    document.getElementById('diary-historico').style.display = tab === 'historico' ? 'block' : 'none';
+    if (tab === 'historico') buildHistorico();
+  }
+
+  // ── ÁGUA ──────────────────────────────────────────────────
+  function initWater() {
+    if (!state.water) state.water = {};
+    const today = todayKey();
+    const filled = state.water[today] || 0;
+    const cups = document.getElementById('water-cups');
+    cups.innerHTML = '';
+    for (let i = 0; i < NUM_CUPS; i++) {
+      const c = document.createElement('div');
+      c.className = 'cup' + (i < filled ? ' filled' : '');
+      const ml = (i + 1) * CUP_ML;
+      const lbl = (ml % 1000 === 0) ? (ml/1000)+'L' : '';
+      c.innerHTML = '<div class="cup-fill"></div>' + (lbl ? '<div class="cup-lbl">' + lbl + '</div>' : '');
+      c.addEventListener('click', () => {
+        const cur = state.water[today] || 0;
+        const nv = i < cur ? i : i + 1;
+        state.totalWaterMl = (state.totalWaterMl||0) + Math.max(0, (nv-cur)*CUP_ML);
+        state.water[today] = nv;
+        saveState(); initWater();
       });
-      div.appendChild(row);
-    });
-    container.appendChild(div);
-  });
-  updateProgress();
-}
-
-function updateProgress() {
-  const today = todayKey();
-  const checks = state.checks[today] || {};
-  const total = checklistData.reduce((a,g) => a + g.items.length, 0);
-  const done = Object.values(checks).filter(Boolean).length;
-  const pct = total > 0 ? Math.round(done/total*100) : 0;
-  document.getElementById('main-progress').style.width = pct + '%';
-  document.getElementById('main-progress-label').textContent = done + ' de ' + total + ' tarefas concluídas hoje';
-}
-
-function resetDay() {
-  if (!confirm('Reiniciar checklist e água de hoje?')) return;
-  const today = todayKey();
-  state.checks[today] = {}; state.water[today] = 0;
-  saveState(); initChecklist(); initWater();
-}
-
-function resetAll() {
-  if (!confirm('Zerar tudo? Isso apagará todo seu progresso.')) return;
-  initState(); render();
-}
-
-function initDiary() {
-  document.getElementById('diary-date-label').textContent = formatTodayLong();
-  const saved = state.diary[todayKey()] || {};
-  document.getElementById('wins').value = saved.wins || '';
-  document.getElementById('improve').value = saved.improve || '';
-  selectRating(saved.rating || 0);
-  selectEnergy(saved.energy || 0);
-}
-
-let currentRating = 0, currentEnergy = 0;
-function selectRating(val) { currentRating = val; document.querySelectorAll('#rating-row .rating-btn').forEach((b,i) => b.classList.toggle('selected', i+1===val)); }
-function selectEnergy(val) { currentEnergy = val; document.querySelectorAll('#energy-row .rating-btn').forEach((b,i) => b.classList.toggle('selected', i+1===val)); }
-
-function saveDiary() {
-  state.diary[todayKey()] = { wins: document.getElementById('wins').value, improve: document.getElementById('improve').value, rating: currentRating, energy: currentEnergy };
-  saveState();
-  const note = document.getElementById('saved-note');
-  note.textContent = 'Gravado.';
-  setTimeout(() => note.textContent = '', 2000);
-  updateStats();
-}
-
-function buildGrid() {
-  const grid = document.getElementById('grid-90');
-  grid.innerHTML = '';
-  const dayNum = currentDayNumber();
-  for (let i = 1; i <= TOTAL; i++) {
-    const cell = document.createElement('div');
-    let cls = 'grid-cell';
-    if (dayNum === null || i > dayNum) cls += ' future';
-    else if (i === dayNum) cls += ' today';
-    else cls += ' past';
-    cell.className = cls;
-    cell.textContent = i;
-    grid.appendChild(cell);
+      cups.appendChild(c);
+    }
+    const totalMl = filled * CUP_ML;
+    const pct = Math.round((totalMl / WATER_GOAL_ML) * 100);
+    document.getElementById('water-ml').textContent = totalMl;
+    document.getElementById('water-pct').textContent = pct;
+    document.getElementById('water-bar').style.width = Math.min(pct, 100) + '%';
   }
-}
 
-function updateStats() {
-  const d = currentDayNumber();
-  const totalL = ((state.totalWaterMl||0)/1000).toFixed(1);
-  document.getElementById('stat-dias').textContent = d !== null ? d : '—';
-  document.getElementById('stat-restam').textContent = daysRemaining();
-  document.getElementById('stat-agua').textContent = totalL + 'L';
-  document.getElementById('stat-registros').textContent = Object.keys(state.diary||{}).length;
-}
+  // ── CHECKLIST ─────────────────────────────────────────────
+  function initChecklist() {
+    const container = document.getElementById('checklist-container');
+    container.innerHTML = '';
+    const today = todayKey();
+    if (!state.checks[today]) state.checks[today] = {};
+    checklistData.forEach(group => {
+      const div = document.createElement('div');
+      div.className = 'checklist-group';
+      div.innerHTML = '<div class="group-title">' + group.group + '</div>';
+      group.items.forEach((item, idx) => {
+        const key = group.group + '_' + idx;
+        const done = !!state.checks[today][key];
+        const row = document.createElement('div');
+        row.className = 'check-item' + (done ? ' done' : '');
+        row.innerHTML = '<div class="check-box"></div><div class="check-label">' + item + '</div>';
+        row.addEventListener('click', () => {
+          state.checks[today][key] = !state.checks[today][key];
+          row.classList.toggle('done', state.checks[today][key]);
+          if (state.checks[today][key]) state.totalChecks = (state.totalChecks||0)+1;
+          saveState(); updateProgress();
+        });
+        div.appendChild(row);
+      });
+      container.appendChild(div);
+    });
+    updateProgress();
+  }
 
-function render() {
-  const dayNum = currentDayNumber();
-  const pct = pctComplete();
-  const frase = getFraseDodia();
-  document.getElementById('header-date').textContent = formatTodayLong();
-  document.getElementById('day-count').textContent = dayNum !== null ? dayNum : '—';
-  document.getElementById('day-of-total').textContent = 'de ' + TOTAL + ' dias na caverna';
-  document.getElementById('today-date-display').textContent = formatTodayShort();
-  document.getElementById('ninety-fill').style.width = pct + '%';
-  document.getElementById('ninety-pct').textContent = pct + '%';
-  document.getElementById('frase-text').textContent = '\u201c' + frase.text + '\u201d';
-  document.getElementById('frase-author').textContent = '\u2014 ' + frase.author;
-  initWater(); initChecklist(); initDiary(); buildGrid(); updateStats();
-}
+  function updateProgress() {
+    const today = todayKey();
+    const checks = state.checks[today] || {};
+    const total = checklistData.reduce((a,g) => a + g.items.length, 0);
+    const done = Object.values(checks).filter(Boolean).length;
+    const pct = total > 0 ? Math.round(done/total*100) : 0;
+    document.getElementById('main-progress').style.width = pct + '%';
+    document.getElementById('main-progress-label').textContent = done + ' de ' + total + ' tarefas concluídas hoje';
+  }
 
-function scheduleNextRefresh() {
-  const now = new Date();
-  const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1);
-  setTimeout(() => { render(); scheduleNextRefresh(); }, tomorrow - now);
-}
+  function resetDay() {
+    if (!confirm('Reiniciar checklist e água de hoje?')) return;
+    const today = todayKey();
+    state.checks[today] = {}; state.water[today] = 0;
+    saveState(); initChecklist(); initWater();
+  }
 
-loadState(); render(); scheduleNextRefresh();
+  function resetAll() {
+    if (!confirm('Zerar tudo? Isso apagará todo seu progresso.')) return;
+    initState(); render();
+  }
+
+  // ── DIÁRIO ────────────────────────────────────────────────
+  function initDiary() {
+    document.getElementById('diary-date-label').textContent = formatTodayLong();
+    const saved = state.diary[todayKey()] || {};
+    document.getElementById('wins').value = saved.wins || '';
+    document.getElementById('improve').value = saved.improve || '';
+    selectRating(saved.rating || 0);
+    selectEnergy(saved.energy || 0);
+  }
+
+  let currentRating = 0, currentEnergy = 0;
+  function selectRating(val) {
+    currentRating = val;
+    document.querySelectorAll('#rating-row .rating-btn').forEach((b,i) => b.classList.toggle('selected', i+1===val));
+  }
+  function selectEnergy(val) {
+    currentEnergy = val;
+    document.querySelectorAll('#energy-row .rating-btn').forEach((b,i) => b.classList.toggle('selected', i+1===val));
+  }
+  function saveDiary() {
+    state.diary[todayKey()] = {
+      wins: document.getElementById('wins').value,
+      improve: document.getElementById('improve').value,
+      rating: currentRating,
+      energy: currentEnergy
+    };
+    saveState();
+    const note = document.getElementById('saved-note');
+    note.textContent = 'Gravado.';
+    setTimeout(() => note.textContent = '', 2000);
+    updateStats();
+  }
+
+  function buildHistorico() {
+    const list = document.getElementById('hist-list');
+    list.innerHTML = '';
+    const diary = state.diary || {};
+    const keys = Object.keys(diary).sort((a,b) => b.localeCompare(a));
+    if (keys.length === 0) {
+      list.innerHTML = '<div class="hist-empty">Nenhum registro ainda.<br>Grave o primeiro dia.</div>';
+      return;
+    }
+    keys.forEach(key => {
+      const entry = diary[key];
+      const dayNum = dayNumberForKey(key);
+      const ratingLabel = RATINGS[entry.rating] || '—';
+      const ratingClass = entry.rating ? 'r' + entry.rating : 'r1';
+      const energyLabel = ENERGY_LABELS[entry.energy] || '—';
+      const el = document.createElement('div');
+      el.className = 'hist-entry';
+      el.innerHTML = `
+        <div class="hist-header" onclick="this.parentElement.classList.toggle('open')">
+          <div class="hist-header-left">
+            <div class="hist-day-badge">${dayNum !== null ? dayNum : '?'}</div>
+            <div class="hist-date-text">${formatKeyShort(key)}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="hist-rating ${ratingClass}">${ratingLabel}</div>
+            <div class="hist-chevron">▼</div>
+          </div>
+        </div>
+        <div class="hist-body">
+          ${entry.wins ? `<div class="hist-section-label">Vitórias</div><div class="hist-text">${entry.wins}</div>` : ''}
+          ${entry.improve ? `<div class="hist-section-label">Melhorar</div><div class="hist-text">${entry.improve}</div>` : ''}
+          <div class="hist-energy">Energia: ${energyLabel}</div>
+        </div>`;
+      list.appendChild(el);
+    });
+  }
+
+  // ── GRID / STATS ──────────────────────────────────────────
+  function buildGrid() {
+    const grid = document.getElementById('grid-91');
+    grid.innerHTML = '';
+    const dayNum = currentDayNumber();
+    for (let i = 1; i <= DIAS_TOTAL; i++) {
+      const cell = document.createElement('div');
+      let cls = 'grid-cell';
+      if (dayNum === null || i > dayNum) cls += ' future';
+      else if (i === dayNum) cls += ' today';
+      else cls += ' past';
+      cell.className = cls;
+      cell.textContent = i;
+      grid.appendChild(cell);
+    }
+  }
+
+  function updateStats() {
+    const d = currentDayNumber();
+    const totalL = ((state.totalWaterMl||0)/1000).toFixed(1);
+    document.getElementById('stat-dias').textContent = d !== null ? d : '—';
+    document.getElementById('stat-restam').textContent = daysRemaining();
+    document.getElementById('stat-agua').textContent = totalL + 'L';
+    document.getElementById('stat-registros').textContent = Object.keys(state.diary||{}).length;
+  }
+
+  // ── RENDER PRINCIPAL ──────────────────────────────────────
+  function render() {
+    const dayNum = currentDayNumber();
+    const pct = pctComplete();
+    const frase = getFraseDodia();
+
+    document.getElementById('header-date').textContent = formatTodayLong();
+    document.getElementById('day-count').textContent = dayNum !== null ? dayNum : '—';
+    document.getElementById('day-of-total').textContent = 'de ' + DIAS_TOTAL + ' dias na caverna';
+    document.getElementById('today-date-display').textContent = formatTodayShort();
+    document.getElementById('ninety-fill').style.width = pct + '%';
+    document.getElementById('ninety-pct').textContent = pct + '%';
+    document.getElementById('frase-text').textContent = '\u201c' + frase.text + '\u201d';
+    document.getElementById('frase-author').textContent = '\u2014 ' + frase.author;
+
+    initWater();
+    initChecklist();
+    initDiary();
+    buildGrid();
+    updateStats();
+  }
+
+  // Refresh automático à meia-noite
+  function scheduleNextRefresh() {
+    const now = new Date();
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    setTimeout(() => { render(); scheduleNextRefresh(); }, tomorrow - now);
+  }
+
+  loadState();
+  render();
+  scheduleNextRefresh();
 </script>
+</body>
+</html>
