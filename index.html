@@ -1,0 +1,471 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --cave: #0a0a0a; --stone: #141414; --ember: #c8410a; --ember-glow: #e85c1a;
+    --gold: #d4a017; --ash: #888; --fog: #555; --light: #f0ede8; --soft: #ccc;
+  }
+  body { background: transparent; }
+  #app { font-family: 'Cinzel', serif; background: var(--cave); color: var(--light); min-height: 600px; border-radius: 16px; overflow: hidden; position: relative; }
+  #app::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--ember), var(--gold), var(--ember)); }
+  .tab-bar { display: flex; border-bottom: 0.5px solid #222; background: var(--stone); padding: 0 0.5rem; gap: 2px; }
+  .tab { padding: 11px 10px; font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--fog); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; font-family: 'Cinzel', serif; }
+  .tab.active { color: var(--ember-glow); border-bottom-color: var(--ember-glow); }
+  .tab:hover:not(.active) { color: var(--soft); }
+  .screen { display: none; padding: 1.25rem; }
+  .screen.active { display: block; }
+  .header-day { text-align: center; padding: 1rem 0 1.25rem; border-bottom: 0.5px solid #1e1e1e; margin-bottom: 1.5rem; }
+  .big-day { font-family: 'Cinzel Decorative', serif; font-size: 80px; font-weight: 900; color: var(--ember-glow); line-height: 1; text-shadow: 0 0 40px rgba(200,65,10,0.3); }
+  .day-label { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.3em; color: var(--fog); text-transform: uppercase; margin-top: 6px; }
+  .today-date-display { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.15em; color: var(--ash); text-transform: uppercase; margin-top: 8px; }
+  .motto { font-family: 'IM Fell English', serif; font-size: 15px; color: var(--ash); font-style: italic; margin-top: 10px; line-height: 1.5; }
+  .ninety-wrap { margin: 0.75rem 0 0; }
+  .ninety-bar-bg { height: 4px; background: #1e1e1e; border-radius: 2px; overflow: hidden; margin-bottom: 5px; }
+  .ninety-bar-fill { height: 100%; background: linear-gradient(90deg, var(--ember), var(--gold)); border-radius: 2px; transition: width 0.6s ease; }
+  .ninety-label { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.1em; color: var(--fog); text-transform: uppercase; display: flex; justify-content: space-between; }
+  .section-label { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--fog); margin-bottom: 10px; }
+  .water-section { margin-bottom: 1.5rem; }
+  .water-cups { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+  .cup {
+    width: 30px; height: 38px;
+    border: 1.5px solid #333; border-radius: 0 0 5px 5px; border-top: none;
+    cursor: pointer; position: relative; overflow: hidden; transition: border-color 0.2s;
+    display: flex; align-items: flex-end; justify-content: center;
+  }
+  .cup-fill { position: absolute; bottom: 0; left: 0; right: 0; height: 0%; background: #1a5a8a; transition: height 0.3s ease; }
+  .cup.filled .cup-fill { height: 100%; background: #2a7ac0; }
+  .cup.filled { border-color: #2a7ac0; }
+  .cup::after { content: ''; position: absolute; top: -6px; left: 3px; right: 3px; height: 6px; border: 1.5px solid #333; border-bottom: none; border-radius: 2px 2px 0 0; }
+  .cup.filled::after { border-color: #2a7ac0; }
+  .cup-label { position: relative; z-index: 1; font-family: 'Cinzel', serif; font-size: 7px; color: var(--fog); padding-bottom: 2px; line-height: 1; }
+  .cup.filled .cup-label { color: white; }
+  .water-info { font-family: 'Cinzel', serif; font-size: 11px; color: var(--ash); letter-spacing: 0.05em; }
+  .water-info span { color: #2a7ac0; font-weight: 600; }
+  .water-bar-bg { height: 3px; background: #1e1e1e; border-radius: 2px; overflow: hidden; margin: 6px 0 4px; }
+  .water-bar-fill { height: 100%; background: linear-gradient(90deg, #1a5a8a, #2a7ac0); border-radius: 2px; transition: width 0.4s ease; }
+  .progress-bar-wrap { height: 2px; background: #1e1e1e; border-radius: 2px; margin: 1rem 0; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: var(--ember-glow); border-radius: 2px; transition: width 0.4s ease; }
+  .progress-label { font-family: 'Cinzel', serif; font-size: 10px; color: var(--fog); margin-bottom: 1rem; text-align: right; letter-spacing: 0.05em; }
+  .checklist-group { margin-bottom: 1.25rem; }
+  .group-title { font-family: 'Cinzel Decorative', serif; font-size: 10px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ember); margin-bottom: 8px; padding-bottom: 6px; border-bottom: 0.5px solid #1e1e1e; }
+  .check-item { display: flex; align-items: center; gap: 10px; padding: 9px 0; cursor: pointer; border-bottom: 0.5px solid #111; }
+  .check-item:last-child { border-bottom: none; }
+  .check-box { width: 18px; height: 18px; border: 1.5px solid #333; border-radius: 3px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .check-item.done .check-box { background: var(--ember); border-color: var(--ember); }
+  .check-item.done .check-box::after { content: ''; width: 4px; height: 8px; border: 2px solid white; border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px); }
+  .check-label { font-family: 'Cinzel', serif; font-size: 12px; color: var(--soft); transition: all 0.2s; flex: 1; letter-spacing: 0.03em; }
+  .check-item.done .check-label { color: var(--fog); text-decoration: line-through; }
+  .diary-date { font-family: 'Cinzel', serif; font-size: 11px; color: var(--fog); margin-bottom: 8px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .diary-label { font-family: 'Cinzel Decorative', serif; font-size: 9px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ember); margin-bottom: 6px; }
+  .diary-entry { margin-bottom: 1.25rem; }
+  textarea { width: 100%; background: var(--stone); border: 0.5px solid #222; border-radius: 8px; color: var(--light); font-family: 'IM Fell English', serif; font-size: 15px; padding: 10px 12px; resize: none; line-height: 1.7; outline: none; transition: border-color 0.2s; }
+  textarea:focus { border-color: #333; }
+  textarea::placeholder { color: var(--fog); font-style: italic; }
+  .rating-row { display: flex; gap: 8px; margin-bottom: 1.25rem; }
+  .rating-btn { flex: 1; padding: 8px 4px; background: var(--stone); border: 0.5px solid #222; border-radius: 8px; color: var(--fog); font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.05em; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .rating-btn.selected { border-color: var(--ember); color: var(--ember-glow); }
+  .save-btn { width: 100%; padding: 13px; background: var(--ember); border: none; border-radius: 8px; color: white; font-family: 'Cinzel', serif; font-size: 12px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; transition: background 0.2s; }
+  .save-btn:hover { background: var(--ember-glow); }
+  .saved-note { font-family: 'Cinzel', serif; font-size: 11px; color: var(--fog); text-align: center; margin-top: 8px; min-height: 18px; letter-spacing: 0.05em; }
+  .frase-card { background: var(--stone); border: 0.5px solid #222; border-radius: 12px; padding: 1.75rem; margin-bottom: 1rem; border-left: 3px solid var(--ember); }
+  .frase-text { font-family: 'IM Fell English', serif; font-size: 19px; line-height: 1.7; color: var(--light); font-style: italic; margin-bottom: 14px; }
+  .frase-author { font-family: 'Cinzel', serif; font-size: 10px; color: var(--fog); letter-spacing: 0.15em; text-transform: uppercase; }
+  .frase-nav { display: flex; justify-content: center; gap: 10px; margin-top: 1rem; }
+  .frase-dot { width: 5px; height: 5px; border-radius: 50%; background: #222; cursor: pointer; transition: background 0.2s; }
+  .frase-dot.active { background: var(--ember-glow); }
+  .shuffle-btn { margin-top: 1rem; width: 100%; padding: 11px; background: transparent; border: 0.5px solid #333; border-radius: 8px; color: var(--fog); font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+  .shuffle-btn:hover { border-color: var(--ember); color: var(--ember-glow); }
+  .stats-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 1.25rem; }
+  .stat-card { background: var(--stone); border: 0.5px solid #1e1e1e; border-radius: 10px; padding: 14px; }
+  .stat-value { font-family: 'Cinzel Decorative', serif; font-size: 38px; font-weight: 900; color: var(--ember-glow); line-height: 1; margin-bottom: 6px; }
+  .stat-label { font-family: 'Cinzel', serif; font-size: 9px; color: var(--fog); letter-spacing: 0.12em; text-transform: uppercase; }
+  .reset-btn { width: 100%; padding: 10px; background: transparent; border: 0.5px solid #1e1e1e; border-radius: 8px; color: var(--fog); font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.08em; cursor: pointer; transition: all 0.2s; margin-top: 0.5rem; }
+  .reset-btn:hover { border-color: #c0392b; color: #c0392b; }
+  .grid-90 { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; margin-bottom: 1.25rem; }
+  .grid-cell { aspect-ratio: 1; border-radius: 3px; border: 0.5px solid #1e1e1e; background: #111; display: flex; align-items: center; justify-content: center; font-family: 'Cinzel', serif; font-size: 7px; color: var(--fog); }
+  .grid-cell.past { background: #2a1a0a; border-color: var(--ember); color: var(--ember); }
+  .grid-cell.today { background: var(--ember); border-color: var(--ember-glow); color: white; }
+  .grid-cell.future { background: #0d0d0d; border-color: #1a1a1a; color: #2a2a2a; }
+</style>
+
+<div id="app">
+  <div style="background:var(--stone); padding:1rem 1.25rem 0.75rem; border-bottom:0.5px solid #1e1e1e;">
+    <div style="font-family:'Cinzel Decorative',serif; font-weight:900; font-size:20px; letter-spacing:0.08em; color:var(--ember-glow);">Modo Caverna</div>
+    <div style="font-family:'Cinzel',serif; font-size:10px; color:var(--fog); letter-spacing:0.18em; text-transform:uppercase; margin-top:2px;" id="header-date"></div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchTab('hoje')">Hoje</div>
+    <div class="tab" onclick="switchTab('checklist')">Checklist</div>
+    <div class="tab" onclick="switchTab('diario')">Diário</div>
+    <div class="tab" onclick="switchTab('frases')">Frases</div>
+    <div class="tab" onclick="switchTab('stats')">Progresso</div>
+  </div>
+
+  <div id="screen-hoje" class="screen active">
+    <div class="header-day">
+      <div class="big-day" id="day-count">—</div>
+      <div class="day-label" id="day-of-total">de 91 dias na caverna</div>
+      <div class="today-date-display" id="today-date-display"></div>
+      <div class="ninety-wrap">
+        <div class="ninety-bar-bg"><div class="ninety-bar-fill" id="ninety-fill" style="width:0%"></div></div>
+        <div class="ninety-label">
+          <span>13 abr</span>
+          <span id="ninety-pct">0%</span>
+          <span>13 jul</span>
+        </div>
+      </div>
+      <div class="motto" id="daily-motto"></div>
+    </div>
+
+    <div class="water-section">
+      <div class="section-label">Água do dia — meta: 4,5 litros</div>
+      <div class="water-cups" id="water-cups"></div>
+      <div class="water-bar-bg"><div class="water-bar-fill" id="water-bar" style="width:0%"></div></div>
+      <div class="water-info"><span id="water-ml">0</span> ml de <span>4500</span> ml &nbsp;&mdash;&nbsp; <span id="water-pct">0</span>%</div>
+    </div>
+
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="main-progress" style="width:0%"></div></div>
+    <div class="progress-label" id="main-progress-label">0 de 0 tarefas concluídas</div>
+
+    <div style="display:flex; gap:8px; margin-top:0.5rem;">
+      <button class="save-btn" style="background:#1a1a1a; border:0.5px solid #333; color:var(--fog);" onclick="switchTab('checklist')">Ver Checklist</button>
+      <button class="save-btn" onclick="switchTab('diario')">Registrar Dia</button>
+    </div>
+  </div>
+
+  <div id="screen-checklist" class="screen">
+    <div id="checklist-container"></div>
+    <button class="reset-btn" onclick="resetDay()">Reiniciar checklist (novo dia)</button>
+  </div>
+
+  <div id="screen-diario" class="screen">
+    <div class="diary-date" id="diary-date-label"></div>
+    <div class="diary-entry">
+      <div class="diary-label">Como foi o dia?</div>
+      <div class="rating-row" id="rating-row">
+        <div class="rating-btn" onclick="selectRating(1)">Fraco</div>
+        <div class="rating-btn" onclick="selectRating(2)">Ok</div>
+        <div class="rating-btn" onclick="selectRating(3)">Bom</div>
+        <div class="rating-btn" onclick="selectRating(4)">Fogo</div>
+      </div>
+    </div>
+    <div class="diary-entry">
+      <div class="diary-label">Vitórias do dia</div>
+      <textarea id="wins" rows="3" placeholder="O que você conquistou hoje?"></textarea>
+    </div>
+    <div class="diary-entry">
+      <div class="diary-label">O que melhorar amanhã</div>
+      <textarea id="improve" rows="3" placeholder="Onde faltou foco ou execução?"></textarea>
+    </div>
+    <div class="diary-entry">
+      <div class="diary-label">Energia e foco (nota)</div>
+      <div class="rating-row" id="energy-row">
+        <div class="rating-btn" onclick="selectEnergy(1)">I</div>
+        <div class="rating-btn" onclick="selectEnergy(2)">II</div>
+        <div class="rating-btn" onclick="selectEnergy(3)">III</div>
+        <div class="rating-btn" onclick="selectEnergy(4)">IV</div>
+        <div class="rating-btn" onclick="selectEnergy(5)">V</div>
+      </div>
+    </div>
+    <button class="save-btn" onclick="saveDiary()">Gravar no Pergaminho</button>
+    <div class="saved-note" id="saved-note"></div>
+  </div>
+
+  <div id="screen-frases" class="screen">
+    <div class="frase-card">
+      <div class="frase-text" id="frase-text"></div>
+      <div class="frase-author" id="frase-author"></div>
+    </div>
+    <div class="frase-nav" id="frase-dots"></div>
+    <button class="shuffle-btn" onclick="shuffleFrase()">Próxima Sentença</button>
+  </div>
+
+  <div id="screen-stats" class="screen">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-value" id="stat-dias">—</div><div class="stat-label">Dia Atual</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-restam">91</div><div class="stat-label">Dias Restantes</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-agua">0</div><div class="stat-label">Total de Litros</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-registros">0</div><div class="stat-label">Dias Registrados</div></div>
+    </div>
+    <div style="font-family:'Cinzel Decorative',serif; font-size:10px; color:var(--ember); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px;">Mapa da Jornada — 91 dias</div>
+    <div class="grid-90" id="grid-90"></div>
+    <div style="font-family:'Cinzel',serif; font-size:10px; color:var(--fog); text-align:center; margin-bottom:1rem; letter-spacing:0.08em;">13 Abr → 13 Jul &nbsp;&mdash;&nbsp; 91 dias</div>
+    <button class="reset-btn" onclick="resetAll()">Zerar tudo e começar do zero</button>
+  </div>
+</div>
+
+<script>
+  const START = new Date(2025, 3, 13);
+  const END   = new Date(2025, 6, 13);
+  const TOTAL = Math.round((END - START) / 86400000) + 1;
+
+  // Água: 4500ml, copos de 250ml cada = 18 copos
+  const WATER_GOAL_ML = 4500;
+  const CUP_ML = 250;
+  const NUM_CUPS = WATER_GOAL_ML / CUP_ML; // 18
+
+  const frases = [
+    { text: "A caverna que você teme entrar tem o tesouro que você busca.", author: "Joseph Campbell" },
+    { text: "Disciplina é liberdade. Quanto mais você se controla, mais livre você se torna.", author: "Jocko Willink" },
+    { text: "Não espere motivação. Crie momentum. A ação gera motivação.", author: "Princípio da Caverna" },
+    { text: "Seu corpo consegue aguentar quase tudo. É sua mente que você precisa convencer.", author: "Anônimo" },
+    { text: "O silêncio não é ausência. É presença de si mesmo.", author: "Modo Caverna" },
+    { text: "Cada dia que você não age é um dia que o concorrente avança.", author: "Mentalidade de Guerra" },
+    { text: "Foco é dizer não para cem boas ideias para dizer sim para uma extraordinária.", author: "Steve Jobs" },
+    { text: "Não há atalho para qualquer lugar que valha a pena ir.", author: "Beverly Sills" },
+    { text: "Pequenas ações consistentes constroem impérios. A grandeza é rotina disfarçada.", author: "Princípio da Caverna" },
+    { text: "Você não precisa de motivação quando tem disciplina.", author: "Anônimo" },
+    { text: "O sofrimento de hoje é a força de amanhã.", author: "Arnold Schwarzenegger" },
+    { text: "Controle seu tempo, controle sua vida.", author: "Modo Caverna" },
+    { text: "Cuide do seu corpo. É o único lugar onde você tem que viver.", author: "Jim Rohn" },
+    { text: "A diferença entre quem você é e quem quer ser está no que você faz todos os dias.", author: "Anônimo" },
+    { text: "Seja tão ocupado construindo seu futuro que não sobra tempo para distrações.", author: "Mentalidade de Guerra" }
+  ];
+
+  const checklistData = [
+    { group: "Manhã", items: ["Acordou sem snooze","Meditou ou respiração profunda (5 min)","Bebeu 500ml de água ao acordar","Treino / movimento do dia"] },
+    { group: "Alimentação", items: ["Café da manhã limpo","Almoço dentro do plano","Janta dentro do plano","Sem açúcar processado"] },
+    { group: "Negócios & Estudos", items: ["Trabalhou na loja / produto","Estudou algo novo (livro ou curso)","Avançou em fonte de renda adicional","Revisou o CIVIC 2018 (se aplicável)"] },
+    { group: "Pilares da Caverna", items: ["Sem redes sociais","Sem dopamina lixo (vídeos, games aleatórios)","Dormiu no horário planejado","Disse não para algo que deveria"] },
+    { group: "Encerramento", items: ["Registrou o diário do dia","Planejou o amanhã","Curadoria: interagiu só com quem importa","Gratidão por 1 coisa do dia"] }
+  ];
+
+  const mottos = [
+    "Foco. Silêncio. Resultado.",
+    "A caverna protege quem a respeita.",
+    "Sem barulho. Só trabalho.",
+    "Cada rep. Cada página. Cada real.",
+    "Construindo em silêncio.",
+    "Modo de guerra ativado.",
+    "O mundo não sabe. E está bem assim.",
+    "Profundidade, não largura.",
+  ];
+
+  let state = {};
+
+  function loadState() {
+    try { const r = localStorage.getItem('caverna_v2'); if (r) state = JSON.parse(r); else initState(); }
+    catch(e) { initState(); }
+  }
+
+  function initState() {
+    state = { water: {}, checks: {}, diary: {}, totalWaterMl: 0, totalChecks: 0, fraseIndex: 0 };
+    saveState();
+  }
+
+  function saveState() { try { localStorage.setItem('caverna_v2', JSON.stringify(state)); } catch(e) {} }
+
+  function todayMidnight() { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); }
+
+  function todayKey() {
+    const n = new Date();
+    return n.getFullYear() + '-' + String(n.getMonth()+1).padStart(2,'0') + '-' + String(n.getDate()).padStart(2,'0');
+  }
+
+  function currentDayNumber() {
+    const diff = Math.round((todayMidnight() - START) / 86400000);
+    if (diff < 0) return null;
+    if (diff >= TOTAL) return TOTAL;
+    return diff + 1;
+  }
+
+  function daysRemaining() {
+    const d = currentDayNumber();
+    return d === null ? TOTAL : Math.max(0, TOTAL - d);
+  }
+
+  function pctComplete() {
+    const d = currentDayNumber();
+    return d === null ? 0 : Math.round((d / TOTAL) * 100);
+  }
+
+  function formatTodayLong() {
+    return new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  }
+
+  function formatTodayShort() {
+    return new Date().toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric' });
+  }
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['hoje','checklist','diario','frases','stats'][i] === tab));
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + tab).classList.add('active');
+  }
+
+  function initWater() {
+    if (!state.water) state.water = {};
+    const today = todayKey();
+    const filled = state.water[today] || 0;
+    const cups = document.getElementById('water-cups');
+    cups.innerHTML = '';
+
+    for (let i = 0; i < NUM_CUPS; i++) {
+      const c = document.createElement('div');
+      c.className = 'cup' + (i < filled ? ' filled' : '');
+      // label: show liter milestone on every 4th cup (1L, 2L, 3L, 4L)
+      const ml = (i + 1) * CUP_ML;
+      const lbl = (ml % 1000 === 0) ? (ml/1000) + 'L' : '';
+      c.innerHTML = '<div class="cup-fill"></div><div class="cup-label">' + lbl + '</div>';
+      c.onclick = () => {
+        const cur = state.water[today] || 0;
+        const nv = i < cur ? i : i + 1;
+        const diffMl = (nv - cur) * CUP_ML;
+        state.totalWaterMl = (state.totalWaterMl || 0) + Math.max(0, diffMl);
+        state.water[today] = nv;
+        saveState(); initWater();
+      };
+      cups.appendChild(c);
+    }
+
+    const totalMl = filled * CUP_ML;
+    const pct = Math.round((totalMl / WATER_GOAL_ML) * 100);
+    document.getElementById('water-ml').textContent = totalMl;
+    document.getElementById('water-pct').textContent = pct;
+    document.getElementById('water-bar').style.width = Math.min(pct, 100) + '%';
+  }
+
+  function initChecklist() {
+    const container = document.getElementById('checklist-container');
+    container.innerHTML = '';
+    const today = todayKey();
+    if (!state.checks[today]) state.checks[today] = {};
+    checklistData.forEach(group => {
+      const div = document.createElement('div');
+      div.className = 'checklist-group';
+      div.innerHTML = '<div class="group-title">' + group.group + '</div>';
+      group.items.forEach((item, idx) => {
+        const key = group.group + '_' + idx;
+        const done = !!state.checks[today][key];
+        const row = document.createElement('div');
+        row.className = 'check-item' + (done ? ' done' : '');
+        row.innerHTML = '<div class="check-box"></div><div class="check-label">' + item + '</div>';
+        row.onclick = () => {
+          state.checks[today][key] = !state.checks[today][key];
+          row.classList.toggle('done', state.checks[today][key]);
+          if (state.checks[today][key]) state.totalChecks = (state.totalChecks||0)+1;
+          saveState(); updateProgress();
+        };
+        div.appendChild(row);
+      });
+      container.appendChild(div);
+    });
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const today = todayKey();
+    const checks = state.checks[today] || {};
+    const total = checklistData.reduce((a,g) => a + g.items.length, 0);
+    const done = Object.values(checks).filter(Boolean).length;
+    const pct = total > 0 ? Math.round(done/total*100) : 0;
+    document.getElementById('main-progress').style.width = pct + '%';
+    document.getElementById('main-progress-label').textContent = done + ' de ' + total + ' tarefas concluídas hoje';
+  }
+
+  function resetDay() {
+    if (!confirm('Reiniciar checklist e água de hoje?')) return;
+    const today = todayKey();
+    state.checks[today] = {}; state.water[today] = 0;
+    saveState(); initChecklist(); initWater();
+  }
+
+  function resetAll() {
+    if (!confirm('Zerar tudo? Isso apagará todo seu progresso.')) return;
+    initState(); render();
+  }
+
+  function initDiary() {
+    document.getElementById('diary-date-label').textContent = formatTodayLong();
+    const saved = state.diary[todayKey()] || {};
+    document.getElementById('wins').value = saved.wins || '';
+    document.getElementById('improve').value = saved.improve || '';
+    selectRating(saved.rating || 0);
+    selectEnergy(saved.energy || 0);
+  }
+
+  let currentRating = 0, currentEnergy = 0;
+  function selectRating(val) { currentRating = val; document.querySelectorAll('#rating-row .rating-btn').forEach((b,i) => b.classList.toggle('selected', i+1===val)); }
+  function selectEnergy(val) { currentEnergy = val; document.querySelectorAll('#energy-row .rating-btn').forEach((b,i) => b.classList.toggle('selected', i+1===val)); }
+
+  function saveDiary() {
+    state.diary[todayKey()] = { wins: document.getElementById('wins').value, improve: document.getElementById('improve').value, rating: currentRating, energy: currentEnergy };
+    saveState();
+    const note = document.getElementById('saved-note');
+    note.textContent = 'Gravado.';
+    setTimeout(() => note.textContent = '', 2000);
+    updateStats();
+  }
+
+  let fraseIdx = 0;
+
+  function initFrases() {
+    fraseIdx = state.fraseIndex || 0;
+    showFrase();
+    const dots = document.getElementById('frase-dots');
+    dots.innerHTML = '';
+    frases.forEach((_,i) => {
+      const d = document.createElement('div');
+      d.className = 'frase-dot' + (i === fraseIdx % frases.length ? ' active' : '');
+      d.onclick = () => { fraseIdx = i; showFrase(); };
+      dots.appendChild(d);
+    });
+  }
+
+  function showFrase() {
+    const f = frases[fraseIdx % frases.length];
+    document.getElementById('frase-text').textContent = '\u201c' + f.text + '\u201d';
+    document.getElementById('frase-author').textContent = '\u2014 ' + f.author;
+    document.querySelectorAll('.frase-dot').forEach((d,i) => d.classList.toggle('active', i === fraseIdx % frases.length));
+    state.fraseIndex = fraseIdx; saveState();
+  }
+
+  function shuffleFrase() { fraseIdx = (fraseIdx+1) % frases.length; showFrase(); }
+
+  function buildGrid() {
+    const grid = document.getElementById('grid-90');
+    grid.innerHTML = '';
+    const dayNum = currentDayNumber();
+    for (let i = 1; i <= TOTAL; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'grid-cell';
+      if (dayNum === null || i > dayNum) cell.classList.add('future');
+      else if (i === dayNum) cell.classList.add('today');
+      else cell.classList.add('past');
+      cell.textContent = i;
+      grid.appendChild(cell);
+    }
+  }
+
+  function updateStats() {
+    const d = currentDayNumber();
+    const totalLitros = ((state.totalWaterMl || 0) / 1000).toFixed(1);
+    document.getElementById('stat-dias').textContent = d !== null ? d : '—';
+    document.getElementById('stat-restam').textContent = daysRemaining();
+    document.getElementById('stat-agua').textContent = totalLitros + 'L';
+    document.getElementById('stat-registros').textContent = Object.keys(state.diary || {}).length;
+  }
+
+  function render() {
+    const dayNum = currentDayNumber();
+    const pct = pctComplete();
+    document.getElementById('header-date').textContent = formatTodayLong();
+    document.getElementById('day-count').textContent = dayNum !== null ? dayNum : '—';
+    document.getElementById('day-of-total').textContent = 'de ' + TOTAL + ' dias na caverna';
+    document.getElementById('today-date-display').textContent = formatTodayShort();
+    document.getElementById('ninety-fill').style.width = pct + '%';
+    document.getElementById('ninety-pct').textContent = pct + '%';
+    document.getElementById('daily-motto').textContent = '\u201c' + mottos[(dayNum||1) % mottos.length] + '\u201d';
+    initWater(); initChecklist(); initDiary(); initFrases(); buildGrid(); updateStats();
+  }
+
+  function scheduleNextRefresh() {
+    const now = new Date();
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1);
+    setTimeout(() => { render(); scheduleNextRefresh(); }, tomorrow - now);
+  }
+
+  loadState(); render(); scheduleNextRefresh();
+</script>
